@@ -9,4 +9,4 @@ For a better understanding of this project and the Valorant API, Visit [here](ht
 * Skin Changer
 
 # Note
-This tool just contacts the API to set your collection and may not change your skins ingame, However in rare chances the API may grant you the skins ingame due to issues in verifying wether you own the item or not.
+This tool just contacts the API to set your collection and may not change your skins ingame, However in rare chances the API may grant you the skins ingame due to issues in verifying whether you own the item or not.

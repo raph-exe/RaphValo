@@ -7,10 +7,7 @@ const https = require('https');
 
 require('@electron/remote/main').initialize();
 
-var mainWindow, axiosClient, accessToken, entitlementsToken, playerUUid, riotClientVersion, myInterval;
-
-let region = 'eu'; // na, latam, br, eu, ap, kr - Depending on region of ur account
-let shard = 'eu'; // ap, kr, eu, na, pbe - Depending on shard of your account
+var mainWindow, axiosClient, accessToken, entitlementsToken, playerUUid, riotClientVersion, myInterval, shard, configEndpoint, coreGameUrl, playerUrl;
 
 app.whenReady().then(() => {
     axios.get('https://valorant-api.com/v1/version').then(res => {
@@ -37,11 +34,64 @@ ipcMain.on('localfolder' , () => {
     mainWindow.webContents.send('localfolder', process.env.LOCALAPPDATA);
 })
 
+ipcMain.on('rankUpdate', (event, arg1, arg2) => {
+    if (!axiosClient) return mainWindow.webContents.send('unauthorized');
+    let Tier = arg1;
+    let GameMode = arg2;
+    let status = "chat";
+    let config = {
+        isValid:true,
+        sessionLoopState:'MENUS',
+        partyOwnerSessionLoopState:'INGAME',
+        customGameName:'',
+        customGameTeam:'',
+        partyOwnerMatchMap:'',
+        partyOwnerMatchCurrentTeam:'',
+        partyOwnerMatchScoreAllyTeam:0,
+        partyOwnerMatchScoreEnemyTeam:0,
+        partyOwnerProvisioningFlow:'Invalid',
+        provisioningFlow:'Invalid',
+        matchMap:'',
+        partyId:'727',
+        isPartyOwner:true,
+        partyState:'DEFAULT',
+        maxPartySize:5,
+        queueId:GameMode,
+        partyLFM:false,
+        partySize:1,
+        tournamentId:'',
+        rosterId:'',
+        partyVersion:1650719279092,
+        queueEntryTime:'0001.01.01-00.00.00',
+        playerCardId:'30b64514-440d-1261-f863-6bbb180263f9',
+        playerTitleId:'00d4d326-4edc-3229-7c28-129d3374e3ad',
+        preferredLevelBorderId:'',
+        accountLevel:69,
+        competitiveTier: Tier,
+        leaderboardPosition:0,
+        isIdle:true
+    }
+    config.partyClientVersion = riotClientVersion;
+    config = {
+        state: status,
+        private: Buffer.from(JSON.stringify(config)).toString('base64'),
+        shared: {
+            actor: "",
+            details: "",
+            location: "",
+            product: "valorant",
+            time: new Date().valueOf() + 35000
+        }
+    }
+    axiosClient.put('/chat/v2/me', config);
+});
+
 ipcMain.on('instaLock', (event, arg1, arg2) => {
+    if (!axiosClient) return mainWindow.webContents.send('unauthorized');
     if (arg1 == true) {
         myInterval = setInterval(() => {
             try {
-                axiosClient.get(`https://glz-${region}-1.${shard}.a.pvp.net/pregame/v1/players/${playerUUid}`, {
+                axiosClient.get(`${coreGameUrl}/pregame/v1/players/${playerUUid}`, {
                     headers: {
                         common: {
                             'Authorization': 'Bearer ' + accessToken,
@@ -53,7 +103,7 @@ ipcMain.on('instaLock', (event, arg1, arg2) => {
                         clearInterval(myInterval)
                         mainWindow.webContents.send('locked')
                         setTimeout(() => {
-                            axiosClient.post(`https://glz-${region}-1.${shard}.a.pvp.net/pregame/v1/matches/${res.data.MatchID}/lock/${arg2}`, {}, {
+                            axiosClient.post(`${coreGameUrl}/pregame/v1/matches/${res.data.MatchID}/lock/${arg2}`, {}, {
                                 headers: {
                                     common: {
                                         'Authorization': 'Bearer ' + accessToken,
@@ -94,6 +144,23 @@ ipcMain.on('auth', (event, port, password) => {
             rejectUnauthorized: false,
         })
     })
+    axiosClient.get('product-session/v1/external-sessions').then(res => {
+        let something = res.data[Object.keys(res.data)[0]];
+        something.launchConfiguration.arguments.forEach(arg => {
+            if(arg.includes('-ares-deployment')) {
+                shard = arg.split("=")[1];
+            }
+            else if (arg.includes("-config-endpoint")) {
+				configEndpoint = arg.split("=")[1];
+			}
+        })
+        if(shard && configEndpoint) {
+            axiosClient.get(configEndpoint + '/v1/config/' + shard).then(res => {
+                coreGameUrl = res.data.Collapsed.SERVICEURL_COREGAME;
+                playerUrl = res.data.Collapsed.SERVICEURL_NAME;
+            });
+        }
+    });
     axiosClient.get('entitlements/v1/token').then(res => {
         accessToken = res.data.accessToken;
         entitlementsToken = res.data.token;
@@ -114,7 +181,7 @@ ipcMain.on('auth', (event, port, password) => {
 
 ipcMain.on('equip', (event, skinUid) => {
     if (!axiosClient) return mainWindow.webContents.send('unauthorized');
-    axiosClient.get(`https://pd.${shard}.a.pvp.net/personalization/v2/players/${playerUUid}/playerloadout`, {
+    axiosClient.get(`${playerUrl}/personalization/v2/players/${playerUUid}/playerloadout`, {
         headers: {
             common: {
                 'Authorization': 'Bearer ' + accessToken,
@@ -127,7 +194,7 @@ ipcMain.on('equip', (event, skinUid) => {
         axios.get('https://valorant-api.com/v1/weapons').then(ress => {
             const gun = ress.data.data.find(weapon => weapon.skins.some(skin => skin.uuid == skinUid));
             sampleBody.Guns.find(sampleGun => sampleGun.ID == gun.uuid).SkinID = skinUid;
-            axiosClient.put(`https://pd.${shard}.a.pvp.net/personalization/v2/players/${playerUUid}/playerloadout`, sampleBody, {
+            axiosClient.put(`${playerUrl}/personalization/v2/players/${playerUUid}/playerloadout`, sampleBody, {
                 headers: {
                     common: {
                         'Authorization': 'Bearer ' + accessToken,

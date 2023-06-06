@@ -21,6 +21,9 @@ const Locker = ({ user }) => {
         setLocker(lock => !lock)
         ipcRenderer.send('instaLock', !locker, Agents[Agent]?.uuid);
     }
+    ipcRenderer.on('unauthorized', () => {
+        setLocker(false);
+    });
     ipcRenderer.on('locked', () => {
         setLocker(false);
     })

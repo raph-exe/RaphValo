@@ -5,6 +5,7 @@ import Locker from './Components/Locker';
 import Skins from './Components/Skins';
 import Settings from './Components/Settings';
 import Swal from 'sweetalert2'
+import Profile from './Components/Profile';
 
 function App() {
   const [page, pageSetter] = useState(0);
@@ -31,8 +32,9 @@ function App() {
         <h1 className='text-2xl italic'>The improved Valorant experience!</h1>
       </div>}
       {page == 1 && <Locker user={user} />}
-      {page == 2 && <Skins user={user} />}
-      {page == 3 && <Settings user={user} userSetter={setUser} />}
+      {page == 2 && <Profile user={user} />}
+      {page == 3 && <Skins user={user} />}
+      {page == 4 && <Settings user={user} userSetter={setUser} />}
     </div>
   )
 }

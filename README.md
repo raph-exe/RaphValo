@@ -11,7 +11,7 @@ For a better understanding of this project and the Valorant API, Visit [here](ht
 # 🔧 Usage
 You can run / build the source or get the compiled release [here](https://github.com/raph-exe/RaphValo/releases)!
 
-## 📝 Using the source
+### 📝 Using the source
 Install the required dependencies using the following command:
 ```
 npm i
@@ -28,12 +28,12 @@ electron .
 ```
 If electron is not installed on your device you can install it globally using `npm i electron -g`
 
-## 📦 Compiling the source
+### 📦 Compiling the source
 Install `electron-builder` globally using `npm i electron-builder -g`
 
 * Run `npm run build` to compile the client side [Creates directory called "dist"].
 * Rename the directory `dist` to `build`.
 * Run `electron-builder` in the directory.
 
-# Note
+# 🔥 Note
 This tool just contacts the API to set your collection and may not change your skins ingame, However in rare chances the API may grant you the skins ingame due to issues in verifying whether you own the item or not.

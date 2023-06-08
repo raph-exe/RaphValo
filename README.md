@@ -43,7 +43,7 @@ Install `electron-builder` globally using `npm i electron-builder -g`
 * * `"/assets/index-5d0004af.js"` --> `"./assets/index-5d0004af.js"`
 * * `"/assets/index-40c62457.css"` --> `"./assets/index-40c62457.css"`
 
-* Run `electron-builder` in the directory.
+* Run `npm run electron:build` in the directory to compile the electron app finally.
 
 # 🔥 Note
 This tool just contacts the API to set your collection and may not change your skins ingame, However in rare chances the API may grant you the skins ingame due to issues in verifying whether you own the item or not.

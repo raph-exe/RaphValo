@@ -2,23 +2,9 @@ import React, { useState } from 'react'
 import Swal from 'sweetalert2'
 
 const Settings = ({ user, userSetter }) => {
-    const { exec } = window.require('child_process');
     const https = window.require('https');
     const fs = window.require('fs');
     const { ipcRenderer } = window.require('electron');
-    const launchValorant = () => {
-        exec('"C:\\Riot Games\\Riot Client\\RiotClientServices.exe" --launch-product=valorant --launch-patchline=live');
-        Swal.fire({
-            icon: 'success',
-            text: 'Launched Valorant',
-            toast: true,
-            position: 'top-end',
-            background: '#2D3748',
-            color: '#fff',
-            showConfirmButton: false,
-            timer: 3000
-        })
-    }
     const authAccount = () => {
         ipcRenderer.send('localfolder');
         ipcRenderer.on('localfolder', (eve, folderPath) => {
@@ -72,7 +58,6 @@ const Settings = ({ user, userSetter }) => {
                 <p className='text-2xl'>{user ? 'Welcome, ' + user?.acct?.game_name : 'Valorant Account Not Authorized'}</p>
                 <p>{user ? 'PlayerID : ' + user?.sub : null}</p>
             </div>
-            <button className='NoDrag w-[100%] bg-gray-700 hover:bg-gray-600 p-3 rounded-lg cursor-pointer transition-all duration-100 ease-linear relative flex justify-center items-center' onClick={launchValorant}>Launch Valorant Instance</button>
             <button className='NoDrag w-[100%] bg-gray-700 hover:bg-gray-600 p-3 rounded-lg cursor-pointer transition-all duration-100 ease-linear relative flex justify-center items-center' onClick={authAccount}>Authorize Account</button>
         </div>
     )

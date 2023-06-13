@@ -10,9 +10,9 @@ require('@electron/remote/main').initialize();
 var mainWindow, axiosClient, accessToken, entitlementsToken, playerUUid, riotClientVersion, myInterval, shard, configEndpoint, coreGameUrl, playerUrl;
 
 app.whenReady().then(() => {
-    axios.get('https://valorant-api.com/v1/version').then(res => {
-        riotClientVersion = res.data.data.riotClientVersion;
-    })
+    // axios.get('https://valorant-api.com/v1/version').then(res => {
+    //     riotClientVersion = res.data.data.riotClientVersion;
+    // })
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -34,10 +34,9 @@ ipcMain.on('localfolder' , () => {
     mainWindow.webContents.send('localfolder', process.env.LOCALAPPDATA);
 })
 
-ipcMain.on('rankUpdate', (event, arg1, arg2) => {
+ipcMain.on('rankUpdate', (event, arg1) => {
     if (!axiosClient) return mainWindow.webContents.send('unauthorized');
     let Tier = arg1;
-    let GameMode = arg2;
     let status = "chat";
     let config = {
         isValid:true,
@@ -56,15 +55,15 @@ ipcMain.on('rankUpdate', (event, arg1, arg2) => {
         isPartyOwner:true,
         partyState:'DEFAULT',
         maxPartySize:5,
-        queueId:GameMode,
+        queueId: '',
         partyLFM:false,
         partySize:1,
         tournamentId:'',
         rosterId:'',
         partyVersion:1650719279092,
         queueEntryTime:'0001.01.01-00.00.00',
-        playerCardId:'30b64514-440d-1261-f863-6bbb180263f9',
-        playerTitleId:'00d4d326-4edc-3229-7c28-129d3374e3ad',
+        playerCardId:'',
+        playerTitleId:'',
         preferredLevelBorderId:'',
         accountLevel:69,
         competitiveTier: Tier,
@@ -172,6 +171,9 @@ ipcMain.on('auth', (event, port, password) => {
             }
         }).then(res => {
             playerUUid = res.data.sub;
+            axiosClient.get(coreGameUrl + `/session/v1/sessions/${playerUUid}`).then(resso => {
+                riotClientVersion = resso.data.clientVersion;
+            })
             setTimeout(() => {
                 mainWindow.webContents.send('userAuth', res.data);
             }, 1000)

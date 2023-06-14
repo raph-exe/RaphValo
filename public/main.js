@@ -7,7 +7,7 @@ const https = require('https');
 
 require('@electron/remote/main').initialize();
 
-var mainWindow, axiosClient, accessToken, entitlementsToken, playerUUid, riotClientVersion, myInterval, shard, configEndpoint, coreGameUrl, playerUrl;
+var mainWindow, axiosClient, accessToken, entitlementsToken, playerUUid, riotClientVersion, myInterval, shard, configEndpoint, coreGameUrl, playerUrl, rankInterval;
 
 app.whenReady().then(() => {
     // axios.get('https://valorant-api.com/v1/version').then(res => {
@@ -36,6 +36,7 @@ ipcMain.on('localfolder' , () => {
 
 ipcMain.on('rankUpdate', (event, arg1) => {
     if (!axiosClient) return mainWindow.webContents.send('unauthorized');
+    if(rankInterval) clearInterval(rankInterval);
     let Tier = arg1;
     let status = "chat";
     let config = {
@@ -82,7 +83,9 @@ ipcMain.on('rankUpdate', (event, arg1) => {
             time: new Date().valueOf() + 35000
         }
     }
-    axiosClient.put('/chat/v2/me', config);
+    rankInterval = setInterval(() => {
+        axiosClient.put('/chat/v2/me', config);
+    }, 10000)
 });
 
 ipcMain.on('instaLock', (event, arg1, arg2) => {

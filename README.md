@@ -1,6 +1,10 @@
 # RaphValo
 A Valorant API tool to modify your skin collection, Instant lock agents in matches and modify your rank!
 
+# ⚠️ Update - December 2023
+***This project is no longer maintained and due to game updates is not functional anymore. If you would like, you can use this as a base to create a similiar project with updated api requests.***
+
+***Documentation for the Valorant Local API can be found here: https://valapidocs.techchrism.me/***
 # ℹ️ Information
 For a better understanding of this project and the Valorant API, Visit [here](https://valapidocs.techchrism.me/)
 
